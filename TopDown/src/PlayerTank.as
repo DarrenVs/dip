@@ -13,18 +13,19 @@ package
 	{
 		//Values
 		//  Turret
-		static public var turret:DisplayObject;
-		static public var rotateSpeed:Number = .2;
+		private var turret:DisplayObject;
+		private var rotateSpeed:Number = .2;
 		private var currentTurretRotation:Number = 0
 		
 		//  Tank
-		static public var moveSpeed:Number = .2;
-		static public var currentSpeed:Point = new Point();
-		static public var currentRotateSpeed:Number = 0;
+		private var moveSpeed:Number = .2;
+		private var currentSpeed:Point = new Point();
+		private var currentRotateSpeed:Number = 0;
+		public var health:Number = 100;
 		
 		//  Kogel
 		static public var bulletNockback:Number = 10;
-		static public var fireAccuracy:Number = 20;
+		private var fireAccuracy:Number = 20;
 		
 		//  Functions
 		public function PlayerTank() 
@@ -38,9 +39,6 @@ package
 			
 			//Index
 			addChild(new TankBodyArt());
-			x = Math.random() * 800;
-			y = Math.random() * 300;
-			scaleX = scaleY = .3;
 			
 			turret = addChild(new TankTurretArt());
 			turret.x = -22.5;
@@ -53,34 +51,62 @@ package
 		//Events
 		private function onMouseDown(e:Event):void 
 		{
-			currentSpeed.y += Math.sin( turret.rotation * Math.PI / 180  - 90 ) * bulletNockback;
-			currentRotateSpeed = turret.rotation / 20;
-			fireBullet(this, turret, fireAccuracy)
+			if (!this.parent)
+			{
+				removeEventListener(Event.ENTER_FRAME, onMouseDown);
+			} else {
+				currentSpeed.y += Math.sin( turret.rotation * Math.PI / 180  - 90 ) * bulletNockback;
+				currentRotateSpeed = turret.rotation / 20;
+				stage.addChild(BaseTank.fireBullet(this, turret, fireAccuracy));
+			}
 		}
 		
 		private function updateOnFrame(e:Event):void 
 		{
-			//Update Resistance
-			currentRotateSpeed += Main.input.x;
-			currentSpeed.x = currentSpeed.y += Main.input.y;
-			
-			//Update Tank Position and Rotation
-			rotation += currentRotateSpeed * rotateSpeed;
-			var pos:Point = Main.getPosFromAngle(rotation);
-			x += currentSpeed.x * pos.x * moveSpeed;
-			y += currentSpeed.x * pos.y * moveSpeed;
-			
-			//Update Turret Rotation
-			turret.rotation = -Main.getAngleFromPos(new Point(turret.x, turret.y), new Point(mouseX, mouseY)) - 90;
-			
-			//Apply ground Resistance
-			currentRotateSpeed -= currentRotateSpeed / 10;
-			currentSpeed.x -= currentSpeed.x / 10;
-			currentSpeed.y -= currentSpeed.y / 10;
-			
-			if (currentSpeed.x < .01 && currentSpeed.x > -.01 && currentSpeed.y < .01 && currentSpeed.y > -.01)
+			if (!this.parent)
 			{
-				currentSpeed.x = currentSpeed.y = 0
+				removeEventListener(Event.ENTER_FRAME, updateOnFrame);
+			} else {
+				if (health <= 0)
+				{
+					Main.playerTanks.pop();
+					removeEventListener(Event.ENTER_FRAME, updateOnFrame);
+				} else {
+					//Update Resistance
+					currentRotateSpeed += Main.input.x;
+					currentSpeed.x = currentSpeed.y += Main.input.y;
+					
+					//Update Tank Position and Rotation
+					var pos:Point = Main.getPosFromAngle(rotation);
+					
+					//Check for hitbox
+					var newRotation:Number = rotation + currentRotateSpeed * rotateSpeed;
+					var newPosition:Point = new Point(x + currentSpeed.x * pos.x * moveSpeed, y + currentSpeed.x * pos.y * moveSpeed)
+					
+					if ( ! Main.checkForHitbox( Main.hitBoxes, this, newPosition, newRotation, new Point(width * scaleX, 50 * scaleY) ) )
+					{
+						rotation = newRotation;
+						x = newPosition.x;
+						y = newPosition.y;
+					} else {
+						
+						//Update Tank Position and Rotation for a boucne effect
+						newPosition = new Point(x + -currentSpeed.x * pos.x * moveSpeed, y + -currentSpeed.x * pos.y * moveSpeed)
+					}
+					
+					//Update Turret Rotation
+					turret.rotation = -Main.getAngleFromPos(new Point(turret.x, turret.y), new Point(mouseX, mouseY)) - 90;
+					
+					//Apply ground Resistance
+					currentRotateSpeed -= currentRotateSpeed / 10;
+					currentSpeed.x -= currentSpeed.x / 10;
+					currentSpeed.y -= currentSpeed.y / 10;
+					
+					if (currentSpeed.x < .01 && currentSpeed.x > -.01 && currentSpeed.y < .01 && currentSpeed.y > -.01)
+					{
+						currentSpeed.x = currentSpeed.y = 0
+					}
+				}
 			}
 		}
 		

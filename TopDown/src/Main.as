@@ -3,8 +3,10 @@ package
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.filters.DropShadowFilter;
 	import flash.geom.Point;
 	import flash.events.KeyboardEvent;
+	import flash.text.engine.FontPosture;
 	import flash.ui.Keyboard;
 	
 	/**
@@ -14,9 +16,10 @@ package
 	public class Main extends Sprite 
 	{
 		//Values
-		private var playerTank:PlayerTank;
-		static public var bullets:Vector.<Bullet> = new Vector.<Bullet>;
+		static public var playerTank:DisplayObject;
+		static public var bullets:Vector.<Object>
 		static public var input:Point = new Point();
+		static public var destroyedTanks:Number;
 		
 		/** DataTypes:
 			0 = Air
@@ -25,19 +28,19 @@ package
 			3 = Player
 			4 = Enemy
 		*/
-		private var levels:Array = [
+		static public var levels:Array = [
 			[
 				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-				[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+				[1, 0, 4, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-				[1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+				[1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -46,14 +49,16 @@ package
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+				[1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+				[1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 			],
 		];
 		
-		static public var hitBoxes:Array;
+		static public var hitBoxes:Vector.<Object>
+		static public var playerTanks:Vector.<Object>
+		static public var enemyTanks:Vector.<Object>
 		
 		
 		//Functions
@@ -68,9 +73,6 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			//Index
-			playerTank = new PlayerTank();
-			createTank();
-			
 			loadMap(levels[0]);
 			
 			//Events
@@ -81,14 +83,61 @@ package
 		
 		private function updateOnFrame(e:Event):void 
 		{
-			for (var i:String in bullets)
+			if (destroyedTanks <= 0 || Main.playerTanks.length <= 0)
 			{
-				bullets[i].updateOnFrame();
+				loadMap(levels[0]);
 			}
+			var i:String
+			for (i in bullets)
+			{
+				bullets[i].updateOnFrame(Number(i));
+			}
+		}
+		
+		static public function checkForHitbox( hitboxes:Vector.<Object>, object:Object, newObjectPos:Point, newObjectRotation:Number, objectSize:Point ):Boolean
+		{
+			var i:String;
+			var hit:Point = new Point(0, 0)
+			
+			for (i in hitboxes)
+			{
+				if (object != hitboxes[i])
+				{
+					if ((hitboxes[i].x + hitboxes[i].width/2 >= newObjectPos.x + objectSize.x/2 && hitboxes[i].x - hitboxes[i].width/2 <= newObjectPos.x + objectSize.x/2
+					|| hitboxes[i].x + hitboxes[i].width/2 >= newObjectPos.x - objectSize.x/2 && hitboxes[i].x - hitboxes[i].width/2 <= newObjectPos.x - objectSize.x/2)
+					&& (hitboxes[i].y + hitboxes[i].height/2 >= newObjectPos.y + objectSize.y/2 && hitboxes[i].y - hitboxes[i].height/2 <= newObjectPos.y + objectSize.y/2
+					|| hitboxes[i].y + hitboxes[i].height / 2 >= newObjectPos.y - objectSize.y / 2 && hitboxes[i].y - hitboxes[i].height / 2 <= newObjectPos.y - objectSize.y / 2))
+					{
+						if (hitboxes[i].health) {
+							if (hitboxes[i].health <= 0)
+							{
+								hitboxes[i].parent.removeChild(hitboxes[i]);
+								hitboxes.splice(Number(i), 1);
+							}
+							hitboxes[i].health -= 20
+						}
+						return true
+					}
+				}
+			}
+			return false
 		}
 		
 		private function loadMap(map:Array):void
 		{
+			hitBoxes = new Vector.<Object>;
+			playerTanks = new Vector.<Object>;
+			enemyTanks = new Vector.<Object>;
+			bullets = new Vector.<Object>;
+			destroyedTanks = 0;
+			
+			while (numChildren > 0) {
+				removeChildAt(0);
+			}
+			while (stage && stage.numChildren > 1) {
+				stage.removeChildAt(1);
+			}
+			
 			for (var y:String in map) {
 				for (var x:String in map[y]) {
 					
@@ -101,24 +150,49 @@ package
 							new Point(map[0].length, map.length),
 							new Point(Number(x), Number(y))
 						);
+						
+						Main.hitBoxes.push(wall);
 						break
 					case 2:
-						var crate:DisplayObject = addChild(new CrateArt())
+						var crate:DisplayObject = addChild(new Crate())
 						Main.getScaleAndPosFromSpace(
 							crate,
 							new Point(stage.stageWidth, stage.stageHeight),
 							new Point(map[0].length, map.length),
 							new Point(Number(x), Number(y))
 						);
+						
+						Main.hitBoxes.push(crate);
+						break
+					case 3:
+						Main.playerTank = stage.addChild(new PlayerTank());
+						Main.getScaleAndPosFromSpace(
+							playerTank,
+							new Point(stage.stageWidth, stage.stageHeight),
+							new Point(map[0].length, map.length),
+							new Point(Number(x), Number(y))
+						);
+						
+						Main.hitBoxes.push(playerTank);
+						Main.playerTanks.push(playerTank);
+						break
+					case 4:
+						var enemyTank:DisplayObject = addChild(new EnemyTank(enemyTanks.length-1));
+						Main.getScaleAndPosFromSpace(
+							enemyTank,
+							new Point(stage.stageWidth, stage.stageHeight),
+							new Point(map[0].length, map.length),
+							new Point(Number(x), Number(y))
+						);
+						
+						destroyedTanks++
+						
+						Main.hitBoxes.push(enemyTank);
+						Main.enemyTanks.push(enemyTank);
 						break
 					}
 				}
 			}
-		}
-		
-		private function createTank():void
-		{
-			addChild(playerTank);
 		}
 		
 		static private function getScaleAndPosFromSpace(object:Object, space:Point, scale:Point, posInSpace:Point):void

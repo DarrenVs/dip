@@ -11,12 +11,14 @@ package
 	 */
 	public class BaseTank extends MovieClip 
 	{
+		private var health:Number = 0;
 		
 		public function BaseTank() 
 		{
+			
 		}
 		
-		protected function fireBullet(tank:Object, turret:Object, accuracy:Number):void
+		static public function fireBullet(tank:Object, turret:Object, accuracy:Number):DisplayObject
 		{
 			
 			//Index
@@ -34,9 +36,8 @@ package
 			shell.rotation = tank.rotation + turret.rotation + (Math.random() - .5) * accuracy;
 			
 			Main.bullets.push(shell);
-			stage.addChild(shell);
+			return shell
 		}
-		
 	}
 
 }
