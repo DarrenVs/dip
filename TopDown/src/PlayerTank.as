@@ -51,7 +51,7 @@ package
 		//Events
 		private function onMouseDown(e:Event):void 
 		{
-			if (!this.parent)
+			if (!parent || health <= 0)
 			{
 				removeEventListener(Event.ENTER_FRAME, onMouseDown);
 			} else {
