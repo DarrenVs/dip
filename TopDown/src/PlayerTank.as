@@ -69,6 +69,7 @@ package
 			} else {
 				if (health <= 0)
 				{
+					addChild(new ExplosionArt());
 					Main.playerTanks.pop();
 					removeEventListener(Event.ENTER_FRAME, updateOnFrame);
 				} else {

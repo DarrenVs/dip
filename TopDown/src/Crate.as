@@ -14,16 +14,6 @@ package
 		public function Crate() 
 		{
 			addChild(new CrateArt())
-			addEventListener(Event.ENTER_FRAME, updateOnFrame);
-		}
-		
-		private function updateOnFrame(e:Event):void 
-		{
-			if (!this.parent)
-			{
-				removeEventListener(Event.ENTER_FRAME, updateOnFrame);
-			} else {
-			}
 		}
 		
 	}
