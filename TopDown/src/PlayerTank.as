@@ -24,7 +24,7 @@ package
 		public var health:Number = 100;
 		
 		//  Kogel
-		static public var bulletNockback:Number = 10;
+		static public var bulletKnockback:Number = 10;
 		private var fireAccuracy:Number = 20;
 		
 		//  Functions
@@ -55,7 +55,7 @@ package
 			{
 				removeEventListener(Event.ENTER_FRAME, onMouseDown);
 			} else {
-				currentSpeed.y += Math.sin( turret.rotation * Math.PI / 180  - 90 ) * bulletNockback;
+				currentSpeed.y += Math.sin( turret.rotation * Math.PI / 180  - 90 ) * bulletKnockback/2;
 				currentRotateSpeed = turret.rotation / 20;
 				stage.addChild(BaseTank.fireBullet(this, turret, fireAccuracy));
 			}
@@ -84,7 +84,7 @@ package
 					var newRotation:Number = rotation + currentRotateSpeed * rotateSpeed;
 					var newPosition:Point = new Point(x + currentSpeed.x * pos.x * moveSpeed, y + currentSpeed.x * pos.y * moveSpeed)
 					
-					if ( ! Main.checkForHitbox( Main.hitBoxes, this, newPosition, newRotation, new Point(width * scaleX, 50 * scaleY) ) )
+					if ( ! Main.checkForHitbox( Main.hitBoxes, this, newPosition, newRotation, new Point(100 * scaleX, 75 * scaleY) ) )
 					{
 						rotation = newRotation;
 						x = newPosition.x;
