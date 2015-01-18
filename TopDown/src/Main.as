@@ -23,7 +23,7 @@ package
 		static public var input:Point = new Point();
 		static public var destroyedTanks:Number;
 		private var myTimer:Timer = new Timer(0, 1);
-		private var currentLevel:Number = 0;
+		private var currentLevel:Number = 2;
 		
 		/** DataTypes:
 			0 = Air
@@ -269,9 +269,9 @@ package
 		
 		static private function getScaleAndPosFromSpace(object:Object, space:Point, scale:Point, posInSpace:Point):void
 		{
-			// berekening x * (stage / scale)
-			object.x = posInSpace.x * (space.x / scale.x);
-			object.y = posInSpace.y * (space.y / scale.y);
+			// berekening x * (stage / scale) + art/2
+			object.x = posInSpace.x * (space.x / scale.x) + 97 / 2 * .3;
+			object.y = posInSpace.y * (space.y / scale.y) + 99 / 2 * .3;
 			// Berekening (stage / map) / (Art-1)
 			object.scaleX = (space.x / scale.x) / 99;
 			object.scaleY = (space.y / scale.y) / 99;
