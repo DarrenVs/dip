@@ -1,11 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\EnemyTank.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PlayerTank.cs">
     <Files>
-      <File FileName="Assets\Scripts\EnemyTank.cs" Line="37" Column="146" />
-      <File FileName="Assets\Scripts\PlayerTank.cs" Line="118" Column="4" />
+      <File FileName="Assets\Scripts\PlayerTank.cs" Line="18" Column="53" />
+      <File FileName="Assets\Scripts\AntiRoll.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Movement.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Bullet.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PlayerCam.cs" Line="7" Column="32" />
+      <File FileName="Assets\Scripts\Health.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\EnemyTank.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

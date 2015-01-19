@@ -11,7 +11,9 @@ public class PlayerCam : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		transform.position = target.transform.position + target.transform.forward * -3 + new Vector3 (0, 2, 0);
-		transform.LookAt ( target.transform.position );
+		if (target) {
+			transform.position = target.transform.position + target.transform.forward * -3 + new Vector3 (0, 2, 0);
+			transform.LookAt (target.transform.position);
+		}
 	}
 }
