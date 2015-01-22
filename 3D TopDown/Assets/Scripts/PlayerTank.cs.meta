@@ -2,7 +2,9 @@ fileFormatVersion: 2
 guid: 4f763ab47c1adc7448d8680d1eaa0504
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - bulletPrefab: {fileID: 184206, guid: 09f25459bc9210942a2dd08dde56018b, type: 2}
+  - crossHairPrefab: {fileID: 103468, guid: 3d67489cde8f9ee4293cfd3d82836e62, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

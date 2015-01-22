@@ -2,7 +2,9 @@ fileFormatVersion: 2
 guid: 91f6b539d9dc59e4a8da653840e98036
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - explosion: {instanceID: 0}
+  - healthBarTexture: {fileID: 2800000, guid: 6a890be0042dda94a96844c8b06a39d7, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -2,12 +2,19 @@
 using System.Collections;
 
 public class Movement : MonoBehaviour {
+	Transform baseTank;
 
 	float moveSpeed;
 	float rotateSpeed;
 	float colliding;
 
 	public float collisionResistance;
+	
+	// Use this for initialization
+	void Start () {
+		
+		baseTank = transform.FindChild ("TankBase");
+	}
 
 	// Colission
 	void OnCollisionEnter (Collision col)
@@ -54,7 +61,17 @@ public class Movement : MonoBehaviour {
 		{
 			// Update custom velocity2
 			moveSpeed -= moveSpeed / collisionResistance;
+		} else {
+			rigidbody.angularVelocity = new Vector3 (rigidbody.angularVelocity.x, 0, rigidbody.angularVelocity.z);
 		}
 		// End of Custom Velocity
+
+		// Running in to a wall check
+		RaycastHit colliderHit;
+		Ray colliderRay = new Ray (baseTank.position, baseTank.forward);
+
+		if (Physics.Raycast (colliderRay, out colliderHit, 1))
+			moveSpeed = 0f;
+		// End of wall check
 	}
 }

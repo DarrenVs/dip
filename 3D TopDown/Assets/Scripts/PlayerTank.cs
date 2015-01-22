@@ -5,10 +5,21 @@ public class PlayerTank : MonoBehaviour {
 	Transform baseTank;
 	Transform turret;
 	Transform barrle;
-
+	
+	Movement moveScript;
+	float cooldown;
 
 	public GameObject bulletPrefab;
-	Movement moveScript;
+	public GameObject crossHairPrefab;
+	public float moveSpeed = 10f;
+	public float rotateSpeed = 25f;
+	public float fireRate = 0.3f;
+	
+	GameObject CrossHairRay;
+	Transform crossHair;
+	Transform mousePoint;
+	LineRenderer crossHairLine;
+	LineRenderer mouseLine;
 
 	int colliding = 0;
 
@@ -20,7 +31,13 @@ public class PlayerTank : MonoBehaviour {
 		baseTank = transform.FindChild ("TankBase");
 		turret = transform.FindChild ("TankTurret");
 		barrle = turret.FindChild ("TurretBarrle");
-		//rigidbody.AddForce (new Vector3 ( 0, -0.001f, 0 ));
+		cooldown = fireRate;
+
+		CrossHairRay = Instantiate (crossHairPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+		crossHair = CrossHairRay.transform.FindChild ("CrossHair");
+		crossHairLine = crossHair.FindChild ("CrossHairLine").GetComponent<LineRenderer>();
+		mousePoint = CrossHairRay.transform.FindChild ("MousePoint");
+		mouseLine = mousePoint.FindChild ("MouseLine").GetComponent<LineRenderer>();
 	}
 
 	void OnCollisionEnter (Collision col)
@@ -38,43 +55,70 @@ public class PlayerTank : MonoBehaviour {
 		if (colliding > 0)
 		{
 			// KeyInput
-			if (Input.GetKey (KeyCode.UpArrow)) {
-				moveScript.AddMovementSpeed (1f);
+			if (Input.GetKey (KeyCode.W)) {
+				moveScript.AddMovementSpeed (moveSpeed);
 			}
-			if (Input.GetKey (KeyCode.DownArrow)) {
-				moveScript.AddMovementSpeed (-1f);
+			if (Input.GetKey (KeyCode.S)) {
+				moveScript.AddMovementSpeed (-moveSpeed);
 			}
-			if (Input.GetKey (KeyCode.RightArrow)) {
-				moveScript.AddRotateSpeed (25f);
+			if (Input.GetKey (KeyCode.D)) {
+				moveScript.AddRotateSpeed (rotateSpeed);
 			}
-			if (Input.GetKey (KeyCode.LeftArrow)) {
-				moveScript.AddRotateSpeed (-25f);
+			if (Input.GetKey (KeyCode.A)) {
+				moveScript.AddRotateSpeed (-rotateSpeed);
 			}
 		}
-		
-		
-		// Running in to a wall check
-		RaycastHit colliderHit;
-		Ray colliderRay = new Ray (baseTank.position, baseTank.forward * moveScript.GetMovementSpeed());
-
-		if (Physics.Raycast (colliderRay, out colliderHit, 1))
-			moveScript.SetMovementSpeed (0f);
-		// End of wall check
-
 		
 		// Turret angle
 		Ray mouseRay = Camera.main.ScreenPointToRay (Input.mousePosition);
 
 		RaycastHit mouseHit;
-		if (Physics.Raycast (mouseRay, out mouseHit, 100))
-						turret.LookAt (new Vector3 (mouseHit.point.x, turret.position.y, mouseHit.point.z));
-				else
-						turret.LookAt (new Vector3 (turret.position.x + mouseRay.direction.x, turret.position.y, turret.position.z + mouseRay.direction.z));
+		if (Physics.Raycast (mouseRay, out mouseHit)) {
+
+			// CrossHair
+			RaycastHit corssHairHit;
+			Debug.DrawRay(turret.position, mouseHit.point - turret.position);
+
+			if (Physics.Raycast (new Ray(turret.position, mouseHit.point - turret.position), out corssHairHit)) {
+				CrossHairRay.SetActive (true);
+
+				crossHairLine.SetPosition (0, turret.position); crossHairLine.SetPosition(1, corssHairHit.point);
+				mouseLine.SetPosition (0, corssHairHit.point); mouseLine.SetPosition(1, mouseHit.point);
+
+				crossHair.position = corssHairHit.point;
+				if (Vector3.Distance (corssHairHit.point, mouseHit.point) > 0.1f) {
+					mousePoint.position = mouseHit.point;
+					mousePoint.gameObject.SetActive (true);
+				} else
+					mousePoint.gameObject.SetActive (false);
+			}
+			// End of CrossHair
+
+			turret.LookAt (mouseHit.point);
+
+			if (baseTank.localEulerAngles.x + turret.localEulerAngles.x > 7.5f && baseTank.localEulerAngles.x + turret.localEulerAngles.x < 180)
+				turret.Rotate (new Vector3 (7.5f-(baseTank.localEulerAngles.x + turret.localEulerAngles.x), 0, 0));
+
+			else if (baseTank.localEulerAngles.x + turret.localEulerAngles.x < 330f && baseTank.localEulerAngles.x + turret.localEulerAngles.x > 180)
+				turret.Rotate (new Vector3 (330f-(baseTank.localEulerAngles.x + turret.localEulerAngles.x), 0, 0));
+		} else {
+			turret.LookAt (turret.position + mouseRay.direction);
+			CrossHairRay.SetActive (false);
+		}
+		
+			if (baseTank.localEulerAngles.x + turret.localEulerAngles.x > 7.5f && baseTank.localEulerAngles.x + turret.localEulerAngles.x < 180)
+				turret.Rotate (new Vector3 (7.5f-(baseTank.localEulerAngles.x + turret.localEulerAngles.x), 0, 0));
+			
+			else if (baseTank.localEulerAngles.x + turret.localEulerAngles.x < 330f && baseTank.localEulerAngles.x + turret.localEulerAngles.x > 180)
+				turret.Rotate (new Vector3 (330f-(baseTank.localEulerAngles.x + turret.localEulerAngles.x), 0, 0));
 		// End of turret angle
 			
 
 		// Fire
-		if (Input.GetButtonDown ("Fire1"))
-			Instantiate (bulletPrefab, barrle.position + barrle.up * 0.5f, Quaternion.Euler( new Vector3( 0, turret.rotation.eulerAngles.y + 180, 0 ) ) );
+		cooldown -= Time.deltaTime;
+		if (cooldown <= 0 && Input.GetButton ("Fire1")) {
+			Instantiate (bulletPrefab, barrle.position + barrle.up * 0.5f, Quaternion.LookRotation (-turret.forward));
+			cooldown = fireRate;
+		}
 	}
 }
